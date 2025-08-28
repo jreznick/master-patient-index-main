@@ -26,10 +26,6 @@ AX_MARGINS = 0.08
 
 
 class GraphReCursor:
-    """
-    Select a graph, recursively, via any provided record id, get the nodes and 
-    weights in the dialect for use by GraphCursors.
-    """
     def __init__(self, record_id):
         self.record_id = record_id
         self.matched_records = {self.record_id}
@@ -41,11 +37,6 @@ class GraphReCursor:
         self.recursive_match_graphing()
 
     def recursive_match_graphing(self):
-        """
-        This will collect all records that are graphed together.
-        Using a starter of one record it will proceed at adding
-        records to itself until it can no longer find records to add.
-        """
         with app.app_context():
             response = list()
             matched_records = self.matched_records
@@ -92,11 +83,6 @@ class GraphReCursor:
 
 
 class GraphCursor:
-    """
-    The GraphCursor takes `nodes_and_weights`, a list of tups of 
-    (a: int, b: int, weight: float) and batch_id, proc_id for a request,
-    and it will transact/impose changes on the patient network when called.
-    """
     def __init__(
             self,
             nodes_and_weights: list,
@@ -134,9 +120,6 @@ class GraphCursor:
                 self.match_count += 1
 
     def plot_enterprise_graph(self):
-        """
-        This creates a plt object using the graph object
-        """
         graph = self.graph
         match_threshold = self.config.get("match_threshold")
         node_size = self.config.get("node_size")
@@ -193,10 +176,6 @@ class GraphCursor:
         return plt
 
     def arrange_enterprise_graph(self):
-        """
-        This loads the nodes-weights dialect into a nx.Graph
-        and sets the enterprise ID off the lowest ID in the graph
-        """
         graph = nx.Graph()
         temp_id = None
         lower = None
@@ -220,13 +199,6 @@ class GraphCursor:
         return enterprise_id, graph
 
     def __call__(self):
-        """
-        When a demographic is activated or deactivated, when a match is 
-        affirmed or denied, or when one of these activities is reversed,
-        there may be changes to one or more graphs in the patient network.
-        The Match and Group tables are updated on so that they reflect
-        the contents of the GraphCursor object.
-        """
         with app.app_context():
             user = SYSTEM_USER
             transaction_key = f"{self.batch_id}_{self.proc_id}"
