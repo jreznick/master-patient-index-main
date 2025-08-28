@@ -1,5 +1,6 @@
 from datetime import datetime
 from .app import app
+from .auditor import Auditor
 from .model import (
     Crosswalk,
     CrosswalkBind,
@@ -9,13 +10,7 @@ from .model import (
 from .processor import mint_transaction_key, transact_records
 
 
-def add_crosswalk(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return crosswalk_id: the  ID for the added record
-    This processor is accessed when a Crosswalk (e.g. "Cognito") is added
-    """
+def add_crosswalk(payload: dict, auditor: Auditor) -> int:
     with app.app_context():
         crosswalk_name = payload.get("crosswalk_name")
         key_name = payload.get("key_name")
@@ -34,12 +29,7 @@ def add_crosswalk(payload: dict, auditor):
     return transact_records(crosswalk_record, "crosswalk")
 
 
-def deactivate_crosswalk(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    This processor is accessed when a Crosswalk (e.g. "Cognito") is deactivated
-    """
+def deactivate_crosswalk(payload: dict, auditor: Auditor):
     with app.app_context():
         crosswalk_id = payload.get("crosswalk_id")
         db.session.query(Crosswalk). \
@@ -56,12 +46,7 @@ def deactivate_crosswalk(payload: dict, auditor):
         db.session.commit()
 
 
-def activate_crosswalk(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    This processor is accessed when a Crosswalk (e.g. "Cognito") is activated
-    """
+def activate_crosswalk(payload: dict, auditor: Auditor):
     with app.app_context():
         crosswalk_id = payload.get("crosswalk_id")
         db.session.query(Crosswalk). \
@@ -78,16 +63,7 @@ def activate_crosswalk(payload: dict, auditor):
         db.session.commit()
 
 
-def add_crosswalk_bind(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return bind_id: the  ID for the added record
-    This processor is accessed to bind a Batch to a Crosswalk, in effect
-    saying that the "foreign key" for each demographic in a given Batch is in a
-    given serialization system defined in the Crosswalk. eg "I am uploading Athena records,
-    and these are their AthenaIDs going into our foreign key store"
-    """
+def add_crosswalk_bind(payload: dict, auditor: Auditor) -> int:
     with app.app_context():
         crosswalk_id = payload.get("crosswalk_id")
         batch_id = payload.get("crosswalk_id")
@@ -107,12 +83,7 @@ def add_crosswalk_bind(payload: dict, auditor):
         return transact_records(crosswalk_bind_record, "crosswalk_bind")
 
 
-def deactivate_crosswalk_bind(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    This processor is accessed when a bind is deactivated
-    """
+def deactivate_crosswalk_bind(payload: dict, auditor: Auditor):
     with app.app_context():
         bind_id = payload.get("bind_id")
         db.session.query(CrosswalkBind). \
@@ -129,12 +100,7 @@ def deactivate_crosswalk_bind(payload: dict, auditor):
         db.session.commit()
 
 
-def activate_crosswalk_bind(payload: dict, auditor):
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    This processor is accessed when a bind is activated
-    """
+def activate_crosswalk_bind(payload: dict, auditor: Auditor):
     with app.app_context():
         bind_id = payload.get("bind_id")
         db.session.query(CrosswalkBind). \
@@ -151,7 +117,6 @@ def activate_crosswalk_bind(payload: dict, auditor):
         db.session.commit()
 
 
-# the crosswalk-dependencies are shipped with this map
 CROSSWALK_MAP = {
     "add_crosswalk": add_crosswalk,
     "activate_crosswalk": activate_crosswalk,
