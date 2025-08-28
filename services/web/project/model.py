@@ -7,19 +7,6 @@ db = SQLAlchemy(app)
 
 
 def key_gen(user: str, version: str) -> int:
-    """
-    :param user: the username issuing the command
-    :param version: the software version employed at the time
-    :return etl_id: the unique ID created for this job
-    A few truths:
-      (1) the patient network can only be adjusted one record at a time, step-wise
-      (2) we are serializing requests, records, transactions, and patients
-        (and soon, crosswalk IDs)
-      (3) it actually makes sense to do this all along one number-line
-    This function is employed wherever a new record is staged for insertion
-    User, version, and timestamp metadata are inserted into the ETLIDSource,
-    this insertion provides the auto-incremented ID which is what's returned.
-    """
     with app.app_context():
         staged_key_record = {
             "id_created_ts": datetime.now(),
@@ -35,8 +22,7 @@ def key_gen(user: str, version: str) -> int:
     return etl_id
 
 
-# the record of requests to delete an action
-class Delete(db.Model, SerializerMixin):  
+class Delete(db.Model, SerializerMixin):
     __tablename__ = "delete_action"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     batch_action = db.Column(db.Text, nullable=False)
@@ -45,8 +31,7 @@ class Delete(db.Model, SerializerMixin):
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of patient demographic facts
-class Demographic(db.Model, SerializerMixin):  
+class Demographic(db.Model, SerializerMixin):
     __tablename__ = "demographic"
     record_id = db.Column(db.BigInteger, primary_key=True)
     organization_key = db.Column(db.Text)
@@ -75,16 +60,14 @@ class Demographic(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# the record of requests to activate a demographic record
-class DemographicActivation(db.Model, SerializerMixin):  
+class DemographicActivation(db.Model, SerializerMixin):
     __tablename__ = "activate_demographic"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id = db.Column(db.BigInteger)
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of requests to archive a demographic record
-class DemographicArchive(db.Model, SerializerMixin):  
+class DemographicArchive(db.Model, SerializerMixin):
     __tablename__ = "archive_demographic"
     record_id = db.Column(db.BigInteger, primary_key=True)
     organization_key = db.Column(db.Text)
@@ -114,32 +97,28 @@ class DemographicArchive(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# the record of requests to deactivate a demographic record
-class DemographicDeactivation(db.Model, SerializerMixin):  
+class DemographicDeactivation(db.Model, SerializerMixin):
     __tablename__ = "deactivate_demographic"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id = db.Column(db.BigInteger)
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of requests to delete a demographic record
-class DemographicDelete(db.Model, SerializerMixin):  
+class DemographicDelete(db.Model, SerializerMixin):
     __tablename__ = "delete_demographic"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id = db.Column(db.BigInteger)
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of API requests
-class Batch(db.Model, SerializerMixin):  
+class Batch(db.Model, SerializerMixin):
     __tablename__ = "batch"
     batch_id = db.Column(db.BigInteger, primary_key=True)
     batch_action = db.Column(db.Text, nullable=False)
     batch_status = db.Column(db.Text, nullable=False)
 
 
-# the record of patient graph changes
-class Bulletin(db.Model, SerializerMixin):  
+class Bulletin(db.Model, SerializerMixin):
     __tablename__ = "bulletin"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     batch_id = db.Column(db.BigInteger)
@@ -150,7 +129,6 @@ class Bulletin(db.Model, SerializerMixin):
     bulletin_ts = db.Column(db.DateTime)
 
 
-# the record of processes spawned by API requests
 class Process(db.Model, SerializerMixin):
     __tablename__ = "process"
     proc_id = db.Column(db.BigInteger, primary_key=True)
@@ -162,8 +140,7 @@ class Process(db.Model, SerializerMixin):
     foreign_record_id = db.Column(db.Text)
 
 
-# the source table for all primary keys, preserving request meta-data
-class ETLIDSource(db.Model, SerializerMixin):  
+class ETLIDSource(db.Model, SerializerMixin):
     __tablename__ = "etl_id_source"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     user = db.Column(db.Text)
@@ -171,8 +148,7 @@ class ETLIDSource(db.Model, SerializerMixin):
     id_created_ts = db.Column(db.DateTime)
 
 
-# the record of match affirmation activities
-class MatchAffirmation(db.Model, SerializerMixin):  
+class MatchAffirmation(db.Model, SerializerMixin):
     __tablename__ = "match_affirm"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id_low = db.Column(db.BigInteger, index=True)
@@ -180,8 +156,7 @@ class MatchAffirmation(db.Model, SerializerMixin):
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of match denial activities
-class MatchDenial(db.Model, SerializerMixin):  
+class MatchDenial(db.Model, SerializerMixin):
     __tablename__ = "match_deny"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id_low = db.Column(db.BigInteger, index=True)
@@ -189,8 +164,7 @@ class MatchDenial(db.Model, SerializerMixin):
     transaction_key = db.Column(db.Text, index=True)
 
 
-# the record of telecoms facts
-class Telecom(db.Model, SerializerMixin):  
+class Telecom(db.Model, SerializerMixin):
     __tablename__ = "telecom"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     record_id = db.Column(db.BigInteger)
@@ -202,8 +176,7 @@ class Telecom(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# the record of pairwise assignment btwn record and EMPI ID
-class EnterpriseGroup(db.Model, SerializerMixin):  
+class EnterpriseGroup(db.Model, SerializerMixin):
     __tablename__ = "enterprise_group"
     etl_id = db.Column(db.BigInteger, primary_key=True)
     enterprise_id = db.Column(db.BigInteger)
@@ -213,8 +186,7 @@ class EnterpriseGroup(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# the record of pairwise match between two demographic records
-class EnterpriseMatch(db.Model, SerializerMixin):  
+class EnterpriseMatch(db.Model, SerializerMixin):
     __tablename__ = "enterprise_match"
     __table_args__ = (
         db.UniqueConstraint(
@@ -233,7 +205,6 @@ class EnterpriseMatch(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# the record of a foreign key-system brought in with demographic records
 class Crosswalk(db.Model, SerializerMixin):
     __tablename__ = "crosswalk"
     __table_args__ = (
@@ -282,7 +253,6 @@ class Test(db.Model, SerializerMixin):
     touched_ts = db.Column(db.DateTime)
 
 
-# Data-model dependencies are shipped with this map
 MODEL_MAP = {
     "activate_demographic": DemographicActivation,
     "archive_demographic": DemographicArchive,
