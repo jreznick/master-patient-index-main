@@ -11,9 +11,6 @@ from .model import (
 
 
 class AuditStamp:
-    """
-    The AuditStamp manages context at the process/single record level.
-    """
     def __init__(self, batch_id, user, version):
         self.batch_id = batch_id
         self.user = user
@@ -47,9 +44,6 @@ class AuditStamp:
 
 
 class Auditor:
-    """
-    The Auditor is a context manager at the batch/api-request level.
-    """
     def __init__(self, user, version, action):
         self.user = user
         self.version = version
