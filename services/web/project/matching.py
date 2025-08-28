@@ -47,13 +47,6 @@ def compare_ssn_equal(a, b) -> bool:  # use this to implement your own security
 
 
 def slice_string_check(a: str, b: str, slice_min=3) -> (bool, int):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :param slice_min: a value of 3 compare a[:3] to b[:3] at the lower end
-    :return slice_result, slice_weight: (a bool of whether slicing finds a
-    pattern, and the weight of the find)
-    """
     len_a = len(a)
     len_b = len(b)
     if len_a >= len_b:
@@ -70,12 +63,6 @@ def slice_string_check(a: str, b: str, slice_min=3) -> (bool, int):
 
 
 def alpha_composite_name_check(a: str, b: str) -> (bool, str, str):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, a_sub, b_sub: (a bool of a test result, and the
-    composite identified)
-    """
     regex = re.compile("[^a-zA-Z]")
     a_sub = regex.sub("", a)
     b_sub = regex.sub("", b)
@@ -85,11 +72,6 @@ def alpha_composite_name_check(a: str, b: str) -> (bool, str, str):
 
 
 def family_name_check(a: str, b: str) -> (bool, dict):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, metrics: (a bool of a test result, and the result details)
-    """
     result = compare_strings_equal(a, b)
     if result:
         return result, {"equal": True}
@@ -117,11 +99,6 @@ def family_name_check(a: str, b: str) -> (bool, dict):
 
 
 def given_name_check(a: str, b: str) -> (bool, dict):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, metrics: (a bool of a test result, and the result details)
-    """
     result = compare_strings_equal(a, b)
     if result:
         return result, {"equal": True}
@@ -140,11 +117,6 @@ def given_name_check(a: str, b: str) -> (bool, dict):
     
 
 def middle_name_check(a: str, b: str) -> (bool, dict):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, metrics: (a bool of a test result, and the result details)
-    """
     result = compare_strings_equal(a, b)
     if len(a) == 0 or len(b) == 0:
         return result, {"blank": True}
@@ -161,11 +133,6 @@ def middle_name_check(a: str, b: str) -> (bool, dict):
 
 
 def address_check(a: str, b: str) -> (bool, dict):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, metrics: (a bool of a test result, and the result details)
-    """
     result = compare_strings_equal(a, b)
     if len(a) == 0 or len(b) == 0:
         return result, {"address_blank": True}
@@ -180,11 +147,6 @@ def address_check(a: str, b: str) -> (bool, dict):
 
 
 def postal_check(a: str, b: str) -> (bool, dict):
-    """
-    :param a: one string value to be compared
-    :param b: one string value to be compared
-    :return result, metrics: (a bool of a test result, and the result details)
-    """
     result = compare_strings_equal(a, b)
     if len(a) == 0 or len(b) == 0:
         return result, {"postal_blank": True}
@@ -196,11 +158,6 @@ def postal_check(a: str, b: str) -> (bool, dict):
 
 
 def wrap_address_check(record_a: dict, record_b: dict) -> dict:
-    """
-    :param record_a: one record series to be compared
-    :param record_b: one record series to be compared
-    :return wrapped metrics: a wrapper on address metrics results
-    """
     postal_result, postal_metrics = postal_check(
         record_a.get("postal_code", None),
         record_b.get("postal_code", None)
@@ -227,11 +184,6 @@ def wrap_address_check(record_a: dict, record_b: dict) -> dict:
 
 
 def wrap_name_check(record_a: dict, record_b: dict) -> dict:
-    """
-    :param record_a: one record series to be compared
-    :param record_b: one record series to be compared
-    :return wrapped metrics: a wrapper on name metrics results
-    """
     fam_name_result, fam_name_metrics = family_name_check(
         record_a.get("family_name", None),
         record_b.get("family_name", None)
