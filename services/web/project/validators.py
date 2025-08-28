@@ -1,8 +1,5 @@
 from incoming import datatypes, PayloadValidator
 
-# these objects provide API payload validation
-
-
 class RecordIDValidator(PayloadValidator):
     record_id = datatypes.Integer(required=True)
     touched_by = datatypes.String(required=True)
