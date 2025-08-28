@@ -16,10 +16,6 @@ ops = {  # ToDo: greater operations support or just these 6?
 
 
 def create_test(packet: dict) -> int:
-	"""
-	This function adds a single test to your database of tests
-	:param packet: a dict with 'metric', 'threshold', 'operator', 'weight'
-	"""
 	user = packet["user"]
 	version = packet["version"]
 	staged_test_record = {
@@ -39,10 +35,6 @@ def create_test(packet: dict) -> int:
 
 
 def delete_test(test_id: int):
-	"""
-	This function removes a test from your database of tests and batteries
-	:param test_id: the primary key of the test to be removed
-	"""
 	with app.app_context():
 		Test.query.filter_by(test_id=test_id).delete()
 		Battery.query.filter_by(test_id=test_id).delete()
@@ -52,10 +44,6 @@ def delete_test(test_id: int):
 
 
 def create_battery(packet: dict) -> int:
-	"""
-	This function collates a list of tests into one battery of tests for use later
-	:param packet: a dict with
-	"""
 	user = packet["user"]
 	version = packet["version"]
 	test_ids = packet["test_ids"]
@@ -76,10 +64,6 @@ def create_battery(packet: dict) -> int:
 
 
 def delete_battery(battery_id: int):
-	"""
-	This function removes a battery from the database
-	:param battery_id: the primary key of the battery to be removed
-	"""
 	with app.app_context():
 		Battery.query.filter_by(battery_id=battery_id).delete()
 		db.session.commit()
@@ -88,10 +72,6 @@ def delete_battery(battery_id: int):
 
 
 def assemble_tests(battery_id: int) -> list:
-	"""
-	This function collates tests bound to a given battery ID
-	:param battery_id: the primary key of the test battery to be run
-	"""
 	test_ids = list()
 	with app.app_context():
 		results = Battery.query.filter_by(battery_id=battery_id).all()
@@ -102,11 +82,6 @@ def assemble_tests(battery_id: int) -> list:
 
 
 def make_battery(test_ids: list, metric: dict) -> list:
-	"""
-	Given a set of tests (by ID), collate them into a battery of such tests
-	:param test_ids: a list of primary keys for score tests
-	:param metric: the results of pairwise analysis of two records
-	"""
 	battery = list()
 	with app.app_context():
 		for test_id in test_ids:
@@ -130,30 +105,14 @@ def make_battery(test_ids: list, metric: dict) -> list:
 
 
 def run_test(x, y, op):
-	"""
-	This function evaluates x and y with a given comparison operator
-	:param x: the metric to be compared (num type: bool, int, or float)
-	:param y: the test eval threshold (num type: bool, int, or float)
-	:param op: the operator of comparison (a callable function)
-
-	"""
 	return op(x, y)
 
 
 def run_threshold(score: float, threshold=0.5) -> bool:
-	"""
-	This function compares a match score to the threshold only
-	:param score: the weighted result of pairwise metric evaluation
-	:param threshold: the value above which a score represents a match
-	"""
 	return score >= threshold
 
 
 def run_battery(battery: list) -> tuple:
-	"""
-	This function wraps the battery of tests
-	:param battery: a list of evaluations of pairwise string metrics
-	"""
 	score = 0
 	for x, y, op, weight in battery:
 		if run_test(x, y, op):
@@ -165,11 +124,6 @@ def run_battery(battery: list) -> tuple:
 
 
 def score_weighting(battery_id: int, metric: dict) -> tuple:
-	"""
-	This function wraps the entire score-weighting process.
-	:param battery_id: the primary key for your test battery
-	:param metric: the results of pairwise analysis of two records
-	"""
 	test_ids = assemble_tests(battery_id)
 	battery = make_battery(test_ids, metric)
 
