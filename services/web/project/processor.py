@@ -27,14 +27,6 @@ from .model import (
 
 
 def mint_transaction_key(auditor, row=None, foreign_record_id=None) -> tuple:
-    """
-    :param auditor: context management object for the transaction
-    :param row: used when counting rows for a Demographics POST
-    :param foreign_record_id: the source pk for a demographic record post
-    :return (transaction_key, proc_id, batch_id, user, ts):
-    This function wraps the call to auditor.stamp(), which generates the process
-     ID and transaction key. Its 8 usages corresponds to each of 8 processors
-    """
     ts = datetime.now()
     proc_id = auditor.stamp(row, foreign_record_id)
     transaction_key = auditor.stamp.transaction_key
@@ -43,12 +35,6 @@ def mint_transaction_key(auditor, row=None, foreign_record_id=None) -> tuple:
 
 
 def transact_records(record, table: str) -> int:
-    """
-    :param record: a sqla data object for insertion into a target table
-    :param table: a string identifying the target table
-    :return record_id: the primary key byproduct of the transaction
-    The effect of every POST is transacted here
-    """
     with app.app_context():
         db.session.add(record)
         db.session.commit()
@@ -70,12 +56,6 @@ def transact_records(record, table: str) -> int:
 
 
 def query_records(payload: dict, endpoint="demographic") -> list:
-    """
-    :param payload: a list of key/value constraints to use in filtering
-    :param endpoint: a string mapped to the sqla data model of tables
-    :return response: a list of rows responsive to a GET request
-    The selection of every GET request is accessed here
-    """
     response = list()
     source_table = MODEL_MAP[endpoint]
     query = source_table.query
@@ -93,13 +73,6 @@ def query_records(payload: dict, endpoint="demographic") -> list:
 
 
 def update_status(batch_id: int, proc_id: int, message: str):
-    """
-    :param batch_id: the unique locator for the API request
-    :param proc_id: the unique locator for the record-level process
-    :param message: the status to store at target record location
-    Updates the Process table with a status message. Its 8 usages corresponds
-     to each of 8 processors
-    """
     with app.app_context():
         db.session.query(Process). \
             filter(
@@ -126,12 +99,6 @@ def update_status(batch_id: int, proc_id: int, message: str):
 
 
 def demographic(payload: dict, auditor) -> dict:
-    """
-    :param payload: a list of json/dict-like records to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return metrics: the results of posting a list of demographic records
-    This processor is accessed when a list of demographics is POSTed.
-    """
     metrics = {
         "affected_records": [],
         "bulletin_ids": [],
@@ -226,12 +193,6 @@ def demographic(payload: dict, auditor) -> dict:
 
 
 def activate_demographic(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return graph.enterprise_id: the graph ID for the activated record
-    This processor is accessed when a demographic is Activated
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -298,12 +259,6 @@ def activate_demographic(payload: dict, auditor) -> int:
 
 
 def archive_demographic(record_id: int, auditor) -> int:
-    """
-    :param record_id: the record ID of the targeted Demographic record
-    :param auditor: native Auditor class object for data warehousing
-    :return archive_id: the record ID of the Archived record in the Archive table.
-    This processor is accessed when a demographic is Archived
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -334,13 +289,6 @@ def archive_demographic(record_id: int, auditor) -> int:
 
 
 def deactivate_demographic(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return transact_records(): this transacts and surfaces a new record locator
-    This processor is accessed when a demographic is Deactivated
-    """
-    
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -378,13 +326,11 @@ def deactivate_demographic(payload: dict, auditor) -> int:
         )
         db.session.commit()
         # ToDo: update in case where rm is the enterprise id item
-        # results = EnterpriseGroup.query.filter_by(enterprise_id=record_id).all()
         EnterpriseGroup.query.filter_by(record_id=record_id).delete()
         EnterpriseGroup.query.filter_by(enterprise_id=record_id).delete()
         db.session.commit()
         for matched_record in recursor.matched_records:
             print(matched_record, file=DEBUG_ROUTE)
-            # if matched_record != record_id:
             inner_recursor = GraphReCursor(matched_record)
             print(
                 f'deac nodes and weights 2 {inner_recursor.nodes_and_weights}', 
@@ -420,12 +366,6 @@ def deactivate_demographic(payload: dict, auditor) -> int:
 
 
 def delete_demographic(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return transact_records(): this transacts and surfaces a new record locator
-    This processor is accessed when a demographic is Deleted
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, _ = \
             mint_transaction_key(auditor)
@@ -456,12 +396,6 @@ def delete_demographic(payload: dict, auditor) -> int:
 
 
 def delete_action(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return transact_records(): this transacts and surfaces a new record locator
-    This processor is accessed when an Action is Deleted
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -552,12 +486,6 @@ def delete_action(payload: dict, auditor) -> int:
 
 
 def affirm_matching(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return transact_records(): this transacts and surfaces a new record locator
-    This processor is accessed when a Match is Affirmed
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -628,12 +556,6 @@ def affirm_matching(payload: dict, auditor) -> int:
 
 
 def deny_matching(payload: dict, auditor) -> int:
-    """
-    :param payload: a dict representing a json/dict-like record to be computed
-    :param auditor: native Auditor class object for data warehousing
-    :return transact_records(): this transacts and surfaces a new record locator
-    This processor is accessed when a Match is Denied
-    """
     with app.app_context():
         transaction_key, proc_id, batch_id, user, touched_ts = \
             mint_transaction_key(auditor)
@@ -710,7 +632,6 @@ def deny_matching(payload: dict, auditor) -> int:
     return transact_records(denial_record, "deny")
 
 
-# processor-dependencies are shipped with this map
 PROCESSOR_MAP = {
     "delete_action": delete_action,
     "demographic": demographic,
@@ -721,4 +642,3 @@ PROCESSOR_MAP = {
     "match_deny": deny_matching,
     "query_records": query_records
 }
-
