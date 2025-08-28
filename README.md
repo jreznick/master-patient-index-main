@@ -126,7 +126,7 @@ It is absolutely necessary that you create an airtight testing seal with additio
 
 # Project Details
 
-To become a contributor to this project, read the [Code of Conduct](https://github.com/HealthIQ-LLC/master-patient-index/blob/main/CODE_OF_CONDUCT.md), pull my email out of it, and get in touch without hesitation.
+To become a contributor to this project, read the [Code of Conduct](https://github.com/jreznick/master-patient-index-main/blob/main/CODE_OF_CONDUCT.md), pull my email out of it, and get in touch without hesitation.
 
 As of now, there is no helpdesk automation or administration for issues, tickets, or anything else. This is a ground-floor project, and if you want commit-level access because you have a strong opinion about these features, let's talk!
 
