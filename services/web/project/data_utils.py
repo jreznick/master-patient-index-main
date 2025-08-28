@@ -38,7 +38,7 @@ def create_composite_name(given_name: str, family_name: str) -> str:
     return value_composite(given_name[:5], family_name).replace(" ", "").replace("-", "")
 
 
-def apply_hash(record: dict, hash_keys: list):
+def apply_hash(record: dict, hash_keys: list) -> str:
     value_list = [str(record.get(key) or "") for key in hash_keys]
     string_to_hash = "".join(value_list)
     temp_hash = sha256()
@@ -48,7 +48,7 @@ def apply_hash(record: dict, hash_keys: list):
     return my_hash
 
 
-def apply_record_metadata(record, user):
+def apply_record_metadata(record: dict, user: str) -> (dict, datetime.datetime):
     composite_ndpc = None
     ts = datetime.datetime.now()
     my_hash = apply_hash(record, HASH_KEYS)
@@ -85,7 +85,10 @@ def random_float() -> float:
     return value * scalar
 
 
-def random_datetime(min_year: int = 1901, max_year: int = datetime.date.today().year) -> datetime.datetime:
+def random_datetime(
+        min_year: int = 1901,
+        max_year: int = datetime.date.today().year
+) -> datetime.datetime:
     parameters = {
         "year": random.randrange(min_year, max_year),
         "month": random.randrange(1, 12),
@@ -106,7 +109,6 @@ def unique_text_key(key="TEST") -> str:
     return f"{key}_{uuid.uuid4().hex[:8]}"
 
 
-# these functions generate dummy test records
 # ToDo: couple test record gen to Model
 def demographics_record(key: str) -> dict:
     record_id = unique_id()
@@ -147,7 +149,7 @@ def demographics_record(key: str) -> dict:
 
 
 def telecoms_record(key: str, record_id: int) -> dict:
-    record = {
+    return {
         "id": unique_id(),
         "record_id": record_id,
         "telecoms_type": unique_text_key(key),
@@ -155,22 +157,22 @@ def telecoms_record(key: str, record_id: int) -> dict:
         "telecoms_value": unique_text_key(key)
     }   
 
-    return record
-
 
 def enterprise_groups_record(enterprise_id: int, record_id: int) -> dict:
-    record = {
+    return {
         "id": unique_id(),
         "enterprise_id": enterprise_id,
         "record_id": record_id
     }
 
-    return record
 
-
-def enterprise_match_record(record_id_low: int, record_id_high: int, 
-                            key: str, is_valid=True) -> dict:
-    record = {
+def enterprise_match_record(
+        record_id_low: int,
+        record_id_high: int,
+        key: str,
+        is_valid=True
+) -> dict:
+    return {
         "id": unique_id(),
         "record_id_low": record_id_low,
         "record_id_high": record_id_high,
@@ -179,5 +181,3 @@ def enterprise_match_record(record_id_low: int, record_id_high: int,
         "prob_match_score": random_float(),
         "is_valid": is_valid
     }
-
-    return record
