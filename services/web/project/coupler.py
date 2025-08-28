@@ -10,8 +10,6 @@ from .validators import (
     RecordIDValidator
 )
 
-# define API endpoints: coupling name, model, processor, validator, and methods
-
 COUPLER = {
     'activate_demographic': {
         'model': MODEL_MAP['activate_demographic'],
